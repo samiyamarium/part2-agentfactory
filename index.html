@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Agent Factory Study Guide - Part 2</title>
+
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Segoe UI,Arial,sans-serif}
+body{background:#f5f7fb;color:#222}
+header{background:#6d28d9;color:#fff;padding:35px;text-align:center}
+header h1{margin-bottom:8px}
+.search{max-width:700px;margin:20px auto;padding:0 20px}
+.search input{width:100%;padding:14px;border:none;border-radius:10px;font-size:16px;box-shadow:0 3px 10px rgba(0,0,0,.1)}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;padding:25px}
+.card{background:#fff;padding:20px;border-radius:12px;border-left:6px solid #6d28d9;cursor:pointer;box-shadow:0 3px 10px rgba(0,0,0,.08);transition:.2s}
+.card:hover{transform:translateY(-5px)}
+.badge{display:inline-block;background:#6d28d9;color:#fff;padding:4px 10px;border-radius:20px;font-size:12px;margin-bottom:10px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);justify-content:center;align-items:center;padding:20px}
+.box{background:#fff;width:100%;max-width:700px;padding:30px;border-radius:14px;max-height:90vh;overflow:auto}
+.close{float:right;font-size:28px;cursor:pointer}
+.box h2{color:#6d28d9;margin-bottom:15px}
+.box h3{margin-top:15px;margin-bottom:8px}
+.box ul{margin-left:20px}
+.box li{margin-bottom:8px}
+</style>
+</head>
+<body>
+
+<header>
+<h1>🏗 AI Agent Factory – Architecture & Methodology</h1>
+<p>Interactive study cards</p>
+</header>
+
+<div class="search">
+<input id="search" placeholder="Search concepts...">
+</div>
+
+<div class="grid" id="cards"></div>
+
+<div class="modal" id="modal">
+<div class="box">
+<span class="close">&times;</span>
+<div id="content"></div>
+</div>
+</div>
+
+<script>
+const concepts=[
+{
+title:"Five-Layer Cake of AI",
+type:"Architecture",
+summary:"The complete AI technology stack.",
+content:`
+<h2>🎂 Five-Layer Cake of AI</h2>
+
+<h3>Layers</h3>
+<ul>
+<li>⚡ Energy</li>
+<li>🖥 Chips</li>
+<li>☁ Infrastructure</li>
+<li>🧠 Models</li>
+<li>📱 Applications</li>
+</ul>
+
+<h3>Remember</h3>
+<p>Business value is primarily created in the <b>Applications</b> layer.</p>
+`
+},
+{
+title:"Applications Layer",
+type:"Architecture",
+summary:"Where AI becomes useful.",
+content:`
+<h2>📱 Applications Layer</h2>
+
+<p>The top layer where models become products, AI Workers and enterprise applications.</p>
+
+<ul>
+<li>AI Agents</li>
+<li>Digital FTEs</li>
+<li>Business Software</li>
+<li>Automation</li>
+</ul>
+`
+},
+{
+title:"Structured Specifications",
+type:"Methodology",
+summary:"Define before building.",
+content:`
+<h2>📄 Structured Specifications</h2>
+
+<p>Describe exactly what an AI Worker should accomplish before implementation.</p>
+
+<ul>
+<li>Reduces ambiguity</li>
+<li>Improves consistency</li>
+<li>Reusable</li>
+<li>Foundation of spec-driven development</li>
+</ul>
+`
+},
+{
+title:"Domain Expertise",
+type:"Methodology",
+summary:"Professional knowledge guides AI.",
+content:`
+<h2>🧠 Domain Expertise</h2>
+
+<p>Human expertise that enables AI Workers to make reliable decisions.</p>
+
+<ul>
+<li>Finance</li>
+<li>Healthcare</li>
+<li>Law</li>
+<li>Engineering</li>
+</ul>
+
+<p><b>Humans provide expertise. AI executes.</b></p>
+`
+},
+{
+title:"Engineering Architecture",
+type:"Methodology",
+summary:"Reliable technical foundation.",
+content:`
+<h2>🏗 Engineering Architecture</h2>
+
+<ul>
+<li>Cloud-native design</li>
+<li>Reusable skills</li>
+<li>Secure tools</li>
+<li>Scalable systems</li>
+</ul>
+
+<p>Ensures Digital FTEs remain dependable.</p>
+`
+},
+{
+title:"Human Oversight",
+type:"Principle",
+summary:"Humans remain accountable.",
+content:`
+<h2>👤 Human Oversight</h2>
+
+<ul>
+<li>Review outputs</li>
+<li>Approve decisions</li>
+<li>Correct mistakes</li>
+<li>Govern AI Workers</li>
+</ul>
+
+<p>AI assists people—it does not replace accountability.</p>
+`
+},
+{
+title:"10-80-10 Rule",
+type:"Framework",
+summary:"Intent → Execution → Verification",
+content:`
+<h2>📊 10-80-10 Rule</h2>
+
+<ul>
+<li><b>10%</b> Human intent</li>
+<li><b>80%</b> AI execution</li>
+<li><b>10%</b> Human verification</li>
+</ul>
+
+<p>This keeps humans in control while maximizing AI productivity.</p>
+`
+},
+{
+title:"Mode 1 vs Mode 2",
+type:"Comparison",
+summary:"Two ways to use AI.",
+content:`
+<h2>⚖ Mode 1 vs Mode 2</h2>
+
+<table border="1" cellpadding="8" style="border-collapse:collapse;width:100%">
+<tr><th>Mode 1</th><th>Mode 2</th></tr>
+<tr><td>Use AI</td><td>Build AI Workers</td></tr>
+<tr><td>Session-based</td><td>Persistent systems</td></tr>
+<tr><td>Personal productivity</td><td>Business automation</td></tr>
+<tr><td>You do the work</td><td>Digital FTE performs the work</td></tr>
+</table>
+`
+}
+];
+
+const cards=document.getElementById("cards");
+
+function draw(list){
+cards.innerHTML="";
+list.forEach(c=>{
+cards.innerHTML+=`
+<div class="card" onclick="show('${c.title}')">
+<div class="badge">${c.type}</div>
+<h3>${c.title}</h3>
+<p>${c.summary}</p>
+</div>`;
+});
+}
+
+draw(concepts);
+
+function show(title){
+const c=concepts.find(x=>x.title===title);
+document.getElementById("content").innerHTML=c.content;
+document.getElementById("modal").style.display="flex";
+}
+
+document.querySelector(".close").onclick=()=>{
+document.getElementById("modal").style.display="none";
+};
+
+window.onclick=e=>{
+if(e.target.id==="modal")
+document.getElementById("modal").style.display="none";
+};
+
+document.getElementById("search").addEventListener("keyup",e=>{
+const q=e.target.value.toLowerCase();
+draw(concepts.filter(c=>
+c.title.toLowerCase().includes(q) ||
+c.summary.toLowerCase().includes(q) ||
+c.type.toLowerCase().includes(q)
+));
+});
+</script>
+
+</body>
+</html>
